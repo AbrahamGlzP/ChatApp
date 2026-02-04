@@ -8,7 +8,11 @@ import SwiftUI
 
 
 struct AppColor {
-    let colorScheme: ColorScheme
+    private let colorScheme: ColorScheme
+    
+    init(colorScheme: ColorScheme) {
+        self.colorScheme = colorScheme
+    }
     
     var background: Color {
         colorScheme == .dark ? Color(hex: 0x121212) : Color(hex: 0xFAFAFA)

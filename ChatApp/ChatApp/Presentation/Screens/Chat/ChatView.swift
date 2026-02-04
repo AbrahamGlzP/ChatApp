@@ -7,61 +7,10 @@
 
 import SwiftUI
 
-struct MessageBoxTextField: View {
-    
-    @Environment(\.colorScheme) private var colorScheme
-    @Binding var text: String
-    var placeholderText: String
-    var buttonAction: (()->Void)
-    
-    private var appColor: AppColor {
-        AppColor(colorScheme: colorScheme)
-    }
-    
-    private var backgroundColor: Color {
-        appColor.accent
-    }
-    
-    var body: some View {
-        HStack {
-            TextField(
-                placeholderText,
-                text: $text,
-                axis: .vertical
-            )
-            .padding(10)
-            .background(Color(.systemGray6))
-            .cornerRadius(8)
-            .keyboardType(.emailAddress)
-            .autocapitalization(.none)
-            .disableAutocorrection(true)
-            .padding(.leading, 20)
-            
-            Button(action: {
-                buttonAction()
-            }) {
-                Image(systemName: Constants.Icon.paperplane)
-                    .imageScale(.large)
-                    .foregroundColor(appColor.textSecondary)
-                    .rotationEffect(Angle(degrees: 45))
-            }
-            .padding(.leading,5)
-            .padding(.trailing, 20)
-        }
-    }
-    
-    private struct Constants {
-        static let imageURL = URL(string: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTNOvNFsKB0hGic3rN6c48xhpjrphsNLoLMZg&s")!
-        struct Icon {
-            static let paperplane = "paperplane.fill"
-        }
-    }
-}
-
 struct ChatView: View {
     
-    @Environment(\.colorScheme) var colorScheme
-    @State var viewModel: ChatViewModel = ChatViewModel()
+    @Environment(\.colorScheme) private var colorScheme
+    @State var viewModel: ChatViewModel
     
     var appColor: AppColor {
         AppColor(colorScheme: colorScheme)
@@ -69,23 +18,39 @@ struct ChatView: View {
     
     var body: some View {
         NavigationStack {
-            ZStack(alignment: .bottom) {
+            VStack(spacing: .zero) {
                 messagesListView
+                if viewModel.loading {
+                    HStack {
+                        MessageLoadingView()
+                        Spacer()
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 10)
+                    .transition(
+                        .move(edge: .bottom)
+                        .combined(with: .opacity)
+                    )
+                }
                 MessageBoxTextField(text: $viewModel.messageToSend, placeholderText: viewModel.placeholder) {
                     viewModel.sendMessage()
                 }
-            }
-            .onAppear {
-                viewModel.appendMockMessages()
-            }
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    toolBarView
+                .animation(
+                    .easeInOut(duration: 0.6),
+                    value: viewModel.loading
+                )
+                .onAppear {
+                    viewModel.appendMockMessages()
                 }
+                .toolbar {
+                    ToolbarItem(placement: .topBarLeading) {
+                        toolBarView
+                    }
+                }
+                .toolbarBackground(appColor.background, for: .navigationBar) // Set the background color
+                .toolbarBackground(.visible, for: .navigationBar)   // Make it always visible
+                .toolbarColorScheme(colorScheme, for: .navigationBar)
             }
-            .toolbarBackground(appColor.background, for: .navigationBar) // Set the background color
-            .toolbarBackground(.visible, for: .navigationBar)   // Make it always visible
-            .toolbarColorScheme(colorScheme, for: .navigationBar)
         }
     }
     
@@ -95,34 +60,44 @@ struct ChatView: View {
                 image
                     .resizable()
                     .scaledToFill()
-                    .frame(width: 40, height: 40)
+                    .frame(width: 30, height: 30)
                     .clipShape(Circle())
             } placeholder: {
                 ProgressView()
             }
             
-            Text("Muscle")
+            Text("Chat app")
                 .font(.headline)
         }
     }
     
     var messagesListView: some View {
-        ScrollView(.vertical)  {
-            VStack(alignment: .leading) {
-                ForEach(viewModel.messagesList, id: \.id)  { message in
-                    HStack {
+        ScrollViewReader { scrollProxy in
+            ScrollView(.vertical)  {
+                VStack(alignment: .leading) {
+                    ForEach(viewModel.messagesList, id: \.id)  { message in
                         if message.source == .outgoing { Spacer() }
                         BubbleMessageView(message: message)
                         if message.source == .incoming { Spacer() }
                     }
+                    Color.clear
+                        .frame(height: 10)
+                        .id("bottom")
+                }
+                .padding()
+            }
+            .padding(.bottom, 8)
+            .onChange(of: viewModel.messagesList.count) {
+                withAnimation {
+                    scrollProxy.scrollTo("bottom", anchor: .bottom)
                 }
             }
-            .padding()
         }
+        
     }
     
     struct Constants {
-        static let imageURL = URL(string: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTNOvNFsKB0hGic3rN6c48xhpjrphsNLoLMZg&s")!
+        static let imageURL = URL(string: "https://tgmskateboards.com/cdn/shop/files/S1057.jpg?v=1747654812")!
         struct Icon {
             static let paperplane = "paperplane"
         }
@@ -130,5 +105,5 @@ struct ChatView: View {
 }
 
 #Preview {
-    ChatView()
+    ChatView(viewModel: ChatViewModel(remoteDataSource: YesNoAPI()))
 }
