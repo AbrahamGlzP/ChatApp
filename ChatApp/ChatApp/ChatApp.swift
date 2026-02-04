@@ -13,7 +13,9 @@ struct ChatApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ChatView(viewModel: ChatViewModel())
+            let remoteDataSource: ChatRemoteDataSourceContract = YesNoAPI()
+            let viewModel: ChatViewModel = ChatViewModel(remoteDataSource: remoteDataSource)
+            ChatView(viewModel: viewModel)
         }
     }
 }

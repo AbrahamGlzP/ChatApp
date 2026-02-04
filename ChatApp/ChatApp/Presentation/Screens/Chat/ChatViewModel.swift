@@ -7,20 +7,71 @@
 
 import SwiftUI
 
+protocol ChatViewModelContract {
+
+}
+
 @Observable
 class ChatViewModel {
-    
     var messagesList: [Message] = []
     var messageToSend: String = ""
     @ObservationIgnored
     var placeholder: String = "Escribe un mensaje"
+    @ObservationIgnored
+    var remoteDataSource: ChatRemoteDataSourceContract
+    
+    var loading: Bool = false
+    
+    init(remoteDataSource: ChatRemoteDataSourceContract) {
+        self.remoteDataSource = remoteDataSource
+    }
 }
 
 extension ChatViewModel {
     func sendMessage() {
         guard !messageToSend.isEmpty else { return }
-        messagesList.append(Message(text: messageToSend, source: .outgoing))
-        messageToSend = ""
+        Task {
+            await MainActor.run {
+                messagesList.append(Message(text: messageToSend, source: .outgoing))
+                messageToSend = ""
+            }
+        }
+        recieveMessage()
+    }
+    
+    func recieveMessage()  {
+        let messageToSend = messagesList.last(where: { $0.source == .outgoing})
+        let messageText: String = messageToSend?.text ?? ""
+        loading = true
+        
+        Task  {
+            try? await Task.sleep(for: .seconds(5))
+            do {
+                let messageData = try await remoteDataSource.sendMessage(message: messageText)
+                
+                do {
+                    let yesNoModelDTO = try JSONDecoder().decode(YesNoResponseDTO.self, from: messageData)
+                    let messageDomain = yesNoModelDTO.toDomain()
+                    await MainActor.run {
+                        messagesList.append(messageDomain)
+                        loading = false
+                    }
+                } catch {
+                    handleError(error: .decodingProblem)
+                }
+                
+            } catch {
+                handleError(error: NetworkError.responseProblem)
+            }
+           
+        }
+    }
+    
+    func handleError(error: NetworkError) {
+        switch error {
+        default:
+            print("An error has ocurred \(error)")
+        }
     }
     
     func appendMockMessages() {

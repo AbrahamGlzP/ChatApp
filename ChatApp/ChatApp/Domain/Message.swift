@@ -18,10 +18,12 @@ struct Message {
     var id: UUID
     var text: String
     var source: MessageSource
+    var image: String?
     
-    init(text: String, source: MessageSource) {
+    init(text: String, source: MessageSource, image: String? = nil) {
         self.id = UUID()
         self.text = text
         self.source = source
+        self.image =  image
     }
 }

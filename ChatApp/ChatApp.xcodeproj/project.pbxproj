@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		08D857DE2F2347A5002C73BE /* SDWebImageSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = 08D857DD2F2347A5002C73BE /* SDWebImageSwiftUI */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		0824AD412F15A30200CBF56A /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -52,6 +56,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				08D857DE2F2347A5002C73BE /* SDWebImageSwiftUI in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -112,6 +117,7 @@
 			);
 			name = ChatApp;
 			packageProductDependencies = (
+				08D857DD2F2347A5002C73BE /* SDWebImageSwiftUI */,
 			);
 			productName = ChatApp;
 			productReference = 0824AD2B2F15A2FF00CBF56A /* ChatApp.app */;
@@ -195,6 +201,9 @@
 			);
 			mainGroup = 0824AD222F15A2FF00CBF56A;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				08D857DC2F2347A5002C73BE /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 0824AD2C2F15A2FF00CBF56A /* Products */;
 			projectDirPath = "";
@@ -558,6 +567,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		08D857DC2F2347A5002C73BE /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/SDWebImage/SDWebImageSwiftUI";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 3.1.4;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		08D857DD2F2347A5002C73BE /* SDWebImageSwiftUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 08D857DC2F2347A5002C73BE /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */;
+			productName = SDWebImageSwiftUI;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 0824AD232F15A2FF00CBF56A /* Project object */;
 }
